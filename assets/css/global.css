@@ -1,0 +1,144 @@
+/* =========================================
+   1. BASE RESET & MOBILE LOCK
+========================================= */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh; /* Dynamic Viewport Height voor mobiele adresbalken */
+  background-color: #050505;
+  color: #00ff66; /* Terminal Groen */
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden; /* Voorkom ongewenst scrollen */
+  
+  /* Touch optimalisaties */
+  touch-action: manipulation; /* Schakelt double-tap inzoomen uit */
+  -webkit-user-select: none; /* Voorkom blauwe tekstselectie iOS */
+  user-select: none; 
+}
+
+/* =========================================
+   2. HOOFDCONTAINER (MOBIEL + DESKTOP)
+========================================= */
+.terminal-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px; /* Zorgt dat het op een PC-scherm niet te breed wordt */
+  height: 100%;
+  margin: 0 auto; /* Centreert de terminal op desktops */
+  padding: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+/* =========================================
+   3. VISUELE EFFECTEN (CRT SCANLINES)
+========================================= */
+.scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none; /* Kliks gaan hier dwars doorheen */
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 9999;
+}
+
+/* =========================================
+   4. TYPOGRAFIE & TEKST
+========================================= */
+h1, h2, h3 {
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+  margin-top: 0;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+p {
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Uitzondering voor Level 3: Maak specifieke tekst wél selecteerbaar */
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* =========================================
+   5. INTERACTIE: INPUTS & KNOPPEN
+========================================= */
+.cyber-input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #00ff66;
+  color: #00ff66;
+  font-size: 2rem;
+  font-family: inherit;
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  outline: none;
+  letter-spacing: 5px;
+}
+
+.cyber-input:focus {
+  border-bottom-color: #fff;
+  text-shadow: 0 0 10px rgba(0, 255, 102, 0.8);
+}
+
+.cyber-button {
+  background: #050505;
+  border: 2px solid #00ff66;
+  color: #00ff66;
+  padding: 16px 24px;
+  font-size: 1.2rem;
+  font-family: inherit;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+  margin: 10px 0;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+  transition: background 0.1s, box-shadow 0.1s;
+}
+
+/* Hover voor desktop gebruikers */
+@media (hover: hover) {
+  .cyber-button:hover {
+    background: rgba(0, 255, 102, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+  }
+}
+
+/* Active status voor mobiele tiks / muisklik */
+.cyber-button:active {
+  background: #00ff66;
+  color: #050505;
+  box-shadow: 0 0 25px rgba(0, 255, 102, 0.9);
+}
+
+/* =========================================
+   6. UTILITIES (KLEUREN & STATUSSEN)
+========================================= */
+.text-error {
+  color: #ff003c;
+  text-shadow: 0 0 8px rgba(255, 0, 60, 0.6);
+}
+
+.text-warning {
+  color: #ffb700;
+  text-shadow: 0 0 8px rgba(255, 183, 0, 0.6);
+}
