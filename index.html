@@ -1,29 +1,94 @@
 <!DOCTYPE html>
 <html lang="nl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AETHERIA // LEVEL 1</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>LEVEL 1</title>
+  
+  <!-- Koppeling naar je globale stylesheet -->
+  <link rel="stylesheet" href="assets/css/global.css">
 
-    <!-- Gedeelde Stijlen -->
-    <link rel="stylesheet" href="assets/css/global.css">
+  <style>
+    /* Specifieke stijlen voor Level 1 elementen */
+    .puzzle-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .cipher-image {
+      max-width: 140px;
+      height: auto;
+    }
+
+    .cipher-poem {
+      font-style: italic;
+      color: #00ff66;
+      border-left: 2px solid #00ff66;
+      padding-left: 12px;
+      margin: 12px 0;
+      line-height: 1.5;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    audio {
+      width: 100%;
+      max-width: 300px;
+      height: 36px;
+      filter: invert(1) hue-rotate(90deg); /* Cyberpunk kleur-hack voor de standaard HTML audio player */
+    }
+
+    #status-msg {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+      letter-spacing: 1px;
+      min-height: 24px;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="scanlines"></div>
 
-    <main class="terminal-container">
+  <!-- CRT Scanline overlay -->
+  <div class="scanlines"></div>
 
-        <h1>System Auth</h1>
-        <p>Voer uw credentials in.</p>
-        <input type="number" class="cyber-input" placeholder="****">
-        <button class="cyber-button">Override</button>
-    </main>
+  <!-- Hoofdcontainer voor mobiel & desktop -->
+  <main class="terminal-container">
+    <h2>// LEVEL 01</h2>
+    
+    <div class="puzzle-box">
+      <!-- 2. De Afbeelding (Lamp / Lichtbron) -->
+      <img src="assets/img/licht.jpg" alt="Lichtbron" class="cipher-image">
+    </div>
 
-    <!-- Level Specifiek Script -->
+    <!-- 3. Het Cryptische Gedicht -->
+    <blockquote class="cipher-poem">
+      Where North stands face to face with South,<br>
+      East silently trades places with West.
+    </blockquote>
+
+    <!-- 4. Formulier voor het Invoeren van het Wachtwoord -->
+    <form id="level1-form" autocomplete="off">
+      <input 
+        type="text" 
+        id="pass-input" 
+        class="cyber-input" 
+        placeholder="******" 
+        required
+      >
+      <button type="submit" class="cyber-button">DECRYPT</button>
+    </form>
+
+    <!-- Feedback melding voor de speler -->
+    <div id="status-msg"></div>
+  </main>
+
+  <!-- Level Specifieke Logica -->
+    <script src="assets/js/audio.js"></script>
     <script src="assets/js/level1.js"></script>
 </body>
-
 </html>
