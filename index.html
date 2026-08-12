@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>LEVEL 1</title>
   
-  <!-- Koppeling naar je globale stylesheet -->
   <link rel="stylesheet" href="assets/css/global.css">
 
   <style>
-    /* Specifieke stijlen voor Level 1 elementen */
     .puzzle-box {
       display: flex;
       flex-direction: column;
@@ -35,13 +33,6 @@
       font-size: 0.95rem;
     }
 
-    audio {
-      width: 100%;
-      max-width: 300px;
-      height: 36px;
-      filter: invert(1) hue-rotate(90deg); /* Cyberpunk kleur-hack voor de standaard HTML audio player */
-    }
-
     #status-msg {
       margin-top: 15px;
       text-align: center;
@@ -53,25 +44,23 @@
 </head>
 <body>
 
-  <!-- CRT Scanline overlay -->
   <div class="scanlines"></div>
 
-  <!-- Hoofdcontainer voor mobiel & desktop -->
   <main class="terminal-container">
     <h2>// LEVEL 01</h2>
     
     <div class="puzzle-box">
-      <!-- 2. De Afbeelding (Lamp / Lichtbron) -->
+      <!-- Visuele clue -->
       <img src="assets/img/licht.jpg" alt="Lichtbron" class="cipher-image">
     </div>
 
-    <!-- 3. Het Cryptische Gedicht -->
+    <!-- Cryptisch gedicht -->
     <blockquote class="cipher-poem">
       Where North stands face to face with South,<br>
       East silently trades places with West.
     </blockquote>
 
-    <!-- 4. Formulier voor het Invoeren van het Wachtwoord -->
+    <!-- Formulier -->
     <form id="level1-form" autocomplete="off">
       <input 
         type="text" 
@@ -83,12 +72,15 @@
       <button type="submit" class="cyber-button">DECRYPT</button>
     </form>
 
-    <!-- Feedback melding voor de speler -->
     <div id="status-msg"></div>
   </main>
 
-  <!-- Level Specifieke Logica -->
-    <script src="assets/js/audio.js"></script>
-    <script src="assets/js/level1.js"></script>
+  <!-- Audio element (speelt pas af bij een fout antwoord) -->
+  <audio id="morse-audio" src="assets/audio/morse.wav" preload="auto"></audio>
+
+  <!-- Scripts -->
+  <script src="assets/js/audio.js"></script>
+  <script src="assets/js/level1.js"></script>
+
 </body>
 </html>
