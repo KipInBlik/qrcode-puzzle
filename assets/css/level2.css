@@ -255,12 +255,13 @@
 ========================================= */
 
 @media (max-width: 600px) {
-  .level2-container {
-    padding-top: 12px;
-  }
 
   .game-panel {
-    width: 100%;
+    width: 92%;
+  }
+
+  .level2-container {
+    padding-top: 24px;
   }
 
   .grid-cell {
@@ -274,6 +275,10 @@
   .legend {
     font-size: 0.45rem;
     gap: 10px;
+  }
+
+  .controls {
+    width: 92%;
   }
 
   .controls .cyber-button {
