@@ -1,148 +1,357 @@
-// Grid Layout: 5x5 Matrix (0..4, 0..4)
-// A1 = (0,0), E5 = (4,4)
-const MAZE_CONFIG = {
-  start: { x: 0, y: 0 }, // A1
-  exit: { x: 4, y: 4 },  // E5
-  traps: ['B2', 'D1', 'C4'], // Kamers die gereset worden
-  clues: {
-    'A2': "Gecodeerd fragment [1/3]: 'Sleutelwoord begint met A...'",
-    'C3': "Terminal-log gevonden: Gebruik de route A1 -> A2 -> B2(VAL!) -> Vermijd B2!",
-    'D3': "Gecodeerd fragment [2/3]: '...ETHER...'",
-    'E4': "Gecodeerd fragment [3/3]: '...IA2026'",
-    'E5': "SYSTEEM GECONTROLEERD. Toegangscode voor Level 3: AETHERIA2026"
-  }
+
+"use strict";
+
+const BOARD = [
+    [2, 4, 8, 3, 5, 9, 3, 1],
+    [8, 3, 2, 8, 5, 7, 3, 4],
+    [1, 7, 1, 6, 8, 4, 5, 3],
+    [9, 5, 9, 6, 6, 8, 1, 8],
+    [6, 2, 7, 2, 3, 3, 7, 6],
+    [4, 5, 9, 6, 9, 2, 9, 8],
+    [4, 7, 3, 8, 8, 4, 6, 6],
+    [1, 7, 2, 3, 2, 9, 3, 6]
+];
+
+const SIZE = BOARD.length;
+
+const START = {
+    row: 0,
+    col: 0
 };
 
-let playerPos = { ...MAZE_CONFIG.start };
-let visitedRooms = new Set(['A1']);
-let moveCooldown = false;
-let isGyroActive = false;
+const GOAL = {
+    row: 7,
+    col: 7
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderGrid();
-  updateUI("Systeem opgestart. Kantel je telefoon om te navigeren.");
-  
-  document.getElementById('enable-gyro-btn').addEventListener('click', requestGyroPermission);
-});
+const gridElement = document.getElementById("grid");
+const stepCounterElement = document.getElementById("stepCounter");
+const statusTextElement = document.getElementById("statusText");
+const resetButton = document.getElementById("resetButton");
+const successPanel = document.getElementById("successPanel");
+const successStepsElement = document.getElementById("successSteps");
 
-// Grid Renderen
-function renderGrid() {
-  const gridEl = document.getElementById('maze-grid');
-  gridEl.innerHTML = '';
+let player;
+let visited;
+let steps;
+let locked;
 
-  for (let y = 0; y < 5; y++) {
-    for (let x = 0; x < 5; x++) {
-      const roomCode = getRoomCode(x, y);
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      cell.id = `cell-${roomCode}`;
-      cell.innerText = roomCode;
 
-      if (x === playerPos.x && y === playerPos.y) {
-        cell.classList.add('current');
-      } else if (visitedRooms.has(roomCode)) {
-        cell.classList.add('visited');
-      }
+/* =========================================
+   POSITION HELPERS
+========================================= */
 
-      gridEl.appendChild(cell);
+function positionKey(row, col) {
+    return `${row},${col}`;
+}
+
+function samePosition(a, b) {
+    return a.row === b.row && a.col === b.col;
+}
+
+function getDistance(a, b) {
+    return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
+}
+
+function isStraightLine(a, b) {
+    return a.row === b.row || a.col === b.col;
+}
+
+
+/* =========================================
+   PUZZLE RULE
+========================================= */
+
+function isValidMove(targetRow, targetCol) {
+
+    if (locked) {
+        return false;
     }
-  }
-}
 
-function getRoomCode(x, y) {
-  const rowLetter = String.fromCharCode(65 + y); // 0=A, 1=B, etc.
-  return `${rowLetter}${x + 1}`;
-}
+    const target = {
+        row: targetRow,
+        col: targetCol
+    };
 
-// Navigatie Logica
-function move(direction) {
-  if (moveCooldown) return;
-
-  let { x, y } = playerPos;
-  if (direction === 'NOORD' && y > 0) y--;
-  if (direction === 'ZUID' && y < 4) y++;
-  if (direction === 'WEST' && x > 0) x--;
-  if (direction === 'OOST' && x < 4) x++;
-
-  if (x !== playerPos.x || y !== playerPos.y) {
-    playerPos = { x, y };
-    const currentCode = getRoomCode(x, y);
-    visitedRooms.add(currentCode);
-
-    // Cooldown instellen tegen te snel 'doorsteken'
-    moveCooldown = true;
-    setTimeout(() => { moveCooldown = false; }, 600);
-
-    processRoomLogic(currentCode);
-    renderGrid();
-  }
-}
-
-function processRoomLogic(roomCode) {
-  // Check op valstrikken
-  if (MAZE_CONFIG.traps.includes(roomCode)) {
-    updateUI(`[ALARM] Valstrik geactiveerd in ${roomCode}! Verbinding verbroken... Reset naar A1.`, true);
-    playerPos = { ...MAZE_CONFIG.start };
-    return;
-  }
-
-  // Check op hints
-  if (MAZE_CONFIG.clues[roomCode]) {
-    updateUI(`[DATA FOUND] ${MAZE_CONFIG.clues[roomCode]}`);
-  } else {
-    updateUI(`Binnengegaan in kamer ${roomCode}. Geen dreiging gedetecteerd.`);
-  }
-}
-
-function updateUI(message, isError = false) {
-  const consoleEl = document.getElementById('console-output');
-  const roomEl = document.getElementById('current-room-display');
-  
-  roomEl.innerText = getRoomCode(playerPos.x, playerPos.y);
-  consoleEl.innerText = message;
-  
-  if (isError) {
-    consoleEl.classList.add('text-error');
-  } else {
-    consoleEl.classList.remove('text-error');
-  }
-}
-
-// Gyroscoop Implementatie
-async function requestGyroPermission() {
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    try {
-      const permission = await DeviceOrientationEvent.requestPermission();
-      if (permission === 'granted') {
-        startGyro();
-      } else {
-        updateUI("Sensor toegang geweigerd. Gebruik de handmatige besturing.", true);
-      }
-    } catch (e) {
-      console.error(e);
+    // Je kunt niet naar hetzelfde vakje.
+    if (samePosition(player, target)) {
+        return false;
     }
-  } else {
-    startGyro();
-  }
+
+    // Alleen horizontaal of verticaal.
+    if (!isStraightLine(player, target)) {
+        return false;
+    }
+
+    // Een landingsvak mag maar één keer gebruikt worden.
+    if (visited.has(positionKey(targetRow, targetCol))) {
+        return false;
+    }
+
+    const currentValue = BOARD[player.row][player.col];
+    const targetValue = BOARD[targetRow][targetCol];
+
+    /*
+     * Bereken de werkelijke afstand.
+     *
+     * Omdat we alleen horizontaal of verticaal bewegen,
+     * is dit gewoon het verschil in rij OF kolom.
+     */
+    let actualDistance;
+
+    if (player.row === targetRow) {
+        actualDistance = Math.abs(
+            player.col - target.col
+        );
+    } else {
+        actualDistance = Math.abs(
+            player.row - target.row
+        );
+    }
+
+    /*
+     * De verborgen puzzelregel:
+     *
+     * afstand === verschil tussen de getallen
+     */
+    const requiredDistance = Math.abs(
+        currentValue - targetValue
+    );
+
+    return actualDistance === requiredDistance;
 }
 
-function startGyro() {
-  isGyroActive = true;
-  document.getElementById('enable-gyro-btn').style.display = 'none';
-  window.addEventListener('deviceorientation', handleOrientation);
-  updateUI("Sensoren actief. Kantel de telefoon om te sturen.");
+
+/* =========================================
+   BOARD RENDERING
+========================================= */
+
+function renderBoard() {
+
+    // Verwijder het oude bord.
+    gridElement.innerHTML = "";
+
+    for (let row = 0; row < SIZE; row++) {
+
+        for (let col = 0; col < SIZE; col++) {
+
+            const cell = document.createElement("button");
+
+            cell.type = "button";
+            cell.className = "grid-cell";
+
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+
+            // Toon het getal.
+            cell.textContent = BOARD[row][col];
+
+            cell.setAttribute(
+                "aria-label",
+                `Rij ${row + 1}, kolom ${col + 1}, getal ${BOARD[row][col]}`
+            );
+
+            // Startvak.
+            if (
+                row === START.row &&
+                col === START.col
+            ) {
+                cell.classList.add("start");
+            }
+
+            // Exitvak.
+            if (
+                row === GOAL.row &&
+                col === GOAL.col
+            ) {
+                cell.classList.add("goal");
+            }
+
+            // Eerder bezocht.
+            if (
+                visited.has(
+                    positionKey(row, col)
+                )
+            ) {
+                cell.classList.add("visited");
+            }
+
+            // Huidige positie.
+            if (
+                row === player.row &&
+                col === player.col
+            ) {
+                cell.classList.add("player");
+            }
+
+            // Kliklistener.
+            cell.addEventListener(
+                "click",
+                () => handleCellClick(row, col)
+            );
+
+            gridElement.appendChild(cell);
+        }
+    }
+
+    // Update het aantal stappen.
+    stepCounterElement.textContent = steps;
 }
 
-function handleOrientation(e) {
-  if (!isGyroActive || moveCooldown) return;
 
-  const tiltLR = e.gamma; // Links (-90) / Rechts (+90)
-  const tiltFB = e.beta;  // Naar voren / Naar achteren
+/* =========================================
+   CELL CLICK
+========================================= */
 
-  const THRESHOLD = 25; // Graden kanteling vereist
+function handleCellClick(row, col) {
 
-  if (tiltFB < -THRESHOLD) move('NOORD');
-  else if (tiltFB > THRESHOLD) move('ZUID');
-  else if (tiltLR < -THRESHOLD) move('WEST');
-  else if (tiltLR > THRESHOLD) move('OOST');
+    // Na het oplossen kan er niets meer worden gedaan.
+    if (locked) {
+        return;
+    }
+
+    // Controleer of de zet geldig is.
+    if (!isValidMove(row, col)) {
+
+        showInvalidMove(row, col);
+
+        return;
+    }
+
+    /*
+     * De speler springt direct naar het gekozen vak.
+     *
+     * Alleen het doelvak wordt als bezocht gemarkeerd.
+     * De vakjes waaroverheen wordt gesprongen worden
+     * dus NIET bezocht.
+     */
+
+    visited.add(
+        positionKey(row, col)
+    );
+
+    player = {
+        row: row,
+        col: col
+    };
+
+    steps++;
+
+    renderBoard();
+
+    // Heeft de speler de uitgang bereikt?
+    if (
+        samePosition(player, GOAL)
+    ) {
+        win();
+    }
+    else {
+        statusTextElement.textContent =
+            "INPUT ACCEPTED";
+    }
 }
+
+
+/* =========================================
+   INVALID MOVE
+========================================= */
+
+function showInvalidMove(row, col) {
+
+    const cell = gridElement.querySelector(
+        `[data-row="${row}"][data-col="${col}"]`
+    );
+
+    if (!cell) {
+        return;
+    }
+
+    /*
+     * Verwijder eerst de bestaande animatie.
+     * Daardoor kan dezelfde animatie opnieuw worden
+     * afgespeeld als de speler meerdere keren klikt.
+     */
+    cell.classList.remove("invalid");
+
+    // Forceer een browser reflow.
+    void cell.offsetWidth;
+
+    // Speel de foutanimatie.
+    cell.classList.add("invalid");
+
+    statusTextElement.textContent =
+        "INVALID";
+
+    // Na korte tijd weer normale status.
+    window.setTimeout(() => {
+
+        if (!locked) {
+            statusTextElement.textContent =
+                "AWAITING INPUT";
+        }
+
+    }, 350);
+}
+
+
+/* =========================================
+   WIN
+========================================= */
+
+function win() {
+
+    locked = true;
+
+    statusTextElement.textContent =
+        "EXIT FOUND";
+
+    successStepsElement.textContent =
+        steps;
+
+    successPanel.hidden = false;
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+function resetGame() {
+
+    // Speler terug naar start.
+    player = {
+        row: START.row,
+        col: START.col
+    };
+
+    // Start telt als bezocht.
+    visited = new Set([
+        positionKey(
+            START.row,
+            START.col
+        )
+    ]);
+
+    steps = 0;
+
+    locked = false;
+
+    successPanel.hidden = true;
+
+    statusTextElement.textContent =
+        "AWAITING INPUT";
+
+    renderBoard();
+}
+
+
+/* =========================================
+   START GAME
+========================================= */
+
+resetButton.addEventListener(
+    "click",
+    resetGame
+);
+
+resetGame();

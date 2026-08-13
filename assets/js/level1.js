@@ -3,9 +3,9 @@
    ========================================================================== */
 
 const ALLOWED_HASHES = [
-  "76d8b2d4f2a71d020d5c0b1bb64b38d350b3294326f63459e74bb34614c2b291", // "spiegel"
-  "934a530e38692694b92b6a2f721ec15a20120f26e5a409748e91ff2c9e7a83bf", // "mirror"
-  "00154761637ca746c354a6d9cfbf1da1a92e79afa6bb127bb8a1c434e9c73170"  // "mirror "
+  "76d8b2d4f2a71d020d5c0b1bb64b38d350b3294326f63459e74bb34614c2b291", 
+  "934a530e38692694b92b6a2f721ec15a20120f26e5a409748e91ff2c9e7a83bf", 
+  "00154761637ca746c354a6d9cfbf1da1a92e79afa6bb127bb8a1c434e9c73170"  
 ];
 
 const form = document.getElementById('level1-form');

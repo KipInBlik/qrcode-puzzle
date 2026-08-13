@@ -1,51 +1,54 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>LEVEL 2</title>
-  
-  <link rel="stylesheet" href="assets/css/global.css">
-  <link rel="stylesheet" href="assets/css/level2.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVEL 2</title>
+
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/level2.css">
 </head>
+
 <body>
+    <div class="scanlines"></div>
 
-  <div class="scanlines"></div>
+    <main class="level2-container">
+        <h2>// LEVEL 02</h2>
 
-  <main class="terminal-container">
-    <h2>// LEVEL 02</h2>
-    
-    <div class="status-bar">
-      <span>LOCATIE: <strong id="current-room-display">A1</strong></span>
-      <span>STATUS: ACTIEF</span>
-    </div>
+        <section class="game-panel">
+            <div class="status-row">
+                <span>STEP <span id="stepCounter">0</span></span>
+                <span id="statusText">AWAITING INPUT</span>
+            </div>
 
-    <!-- Knop voor iOS gyroscoop permissie -->
-    <button id="enable-gyro-btn" class="cyber-button">ACTIVEER SENSOR NAVIGATIE</button>
+            <div
+                id="grid"
+                class="grid"
+                aria-label="8 bij 8 wiskundige gridpuzzel"
+            ></div>
 
-    <!-- Het 5x5 doolhof grid -->
-    <div id="maze-grid" class="maze-grid"></div>
+            <div class="legend" aria-hidden="true">
+                <span><i class="legend-dot start"></i> START</span>
+                <span><i class="legend-dot player"></i> POSITION</span>
+                <span><i class="legend-dot goal"></i> EXIT</span>
+            </div>
+        </section>
 
-    <!-- Console voor kamermeldingen, clues en valstrikken -->
-    <div class="terminal-console">
-      <p id="console-output">Initialiseren van netwerkkaart... Kantel je toestel of gebruik de besturing om te navigeren.</p>
-    </div>
+        <div class="controls">
+            <button id="resetButton" class="cyber-button" type="button">
+                RESET
+            </button>
+        </div>
 
-    <!-- Fallback D-Pad voor handmatige navigatie -->
-    <div class="dpad-container">
-      <div class="dpad">
-        <div></div>
-        <button class="cyber-button dpad-btn" onclick="move('NOORD')">▲</button>
-        <div></div>
-        <button class="cyber-button dpad-btn" onclick="move('WEST')">◄</button>
-        <button class="cyber-button dpad-btn" onclick="move('ZUID')">▼</button>
-        <button class="cyber-button dpad-btn" onclick="move('OOST')">►</button>
-      </div>
-    </div>
-  </main>
+        <section id="successPanel" class="success-panel" hidden>
+            <div class="success-title">ACCESS GRANTED</div>
+            <div class="success-text">GRID SOLVED.</div>
+            <div class="success-steps">
+                STEPS: <span id="successSteps">0</span>
+            </div>
+        </section>
+    </main>
 
-  <!-- Scripts -->
-  <script src="assets/js/level2.js"></script>
-
+    <script src="assets/js/level2.js"></script>
 </body>
 </html>
